@@ -1,0 +1,15 @@
+name: GitHub Actions Demo
+run-name: ${{ github.actor }} attempted push to ${{github.action_repository}}
+on:
+  pull_request:
+  push:
+    branches: [main, Github-Actions]
+
+jobs:
+  lints:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix build .
