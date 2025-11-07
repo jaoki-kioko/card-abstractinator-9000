@@ -1,15 +1,17 @@
 name: GitHub Actions Demo
-run-name: ${{ github.actor }} attempted push to ${{github.action_repository}}
+run-name: ${{ github.actor }} attempted push to ${{github.repository}}
+
 on:
   pull_request:
   push:
     branches: [main, Github-Actions]
-
 jobs:
-  lints:
-    name: Build
+  tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
-      - run: nix build .
+    - uses: actions/checkout@v5
+    - uses: cachix/install-nix-action@v31
+      with:
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+    - run: nix build
+    - run: nix flake check
