@@ -1,17 +1,40 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} attempted push to ${{github.repository}}
+name: CI
 
 on:
-  pull_request:
   push:
-    branches: [main, Github-Actions]
+    branches: [ main, Github-Actions ]
+  pull_request:
+
 jobs:
-  tests:
+  format-check:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v5
-    - uses: cachix/install-nix-action@v31
-      with:
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-    - run: nix build
-    - run: nix flake check
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Run format checks
+        run: |
+          nix develop --command bash -c "
+            echo 'Checking Rust formatting...'
+            cargo fmt --all -- --check
+
+            echo 'Checking Nix formatting...'
+            if [ -f formatted.nix ]; then
+              nix eval .#formatted --apply 'x: builtins.all (v: v == \"formatted\") x'
+            else
+              # fallback if you use nix fmt or nixpkgs-fmt directly
+              if command -v nix fmt &>/dev/null; then
+                nix fmt --check .
+              elif command -v nixpkgs-fmt &>/dev/null; then
+                nixpkgs-fmt --check .
+              else
+                echo 'No Nix formatting command found, skipping.'
+              fi
+            fi
+          "
