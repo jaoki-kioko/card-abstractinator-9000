@@ -14,6 +14,10 @@ pkgs.mkShell {
     # Replace llvmPackages with llvmPackages_X, where X is the latest LLVM version (at the time of writing, 16)
     llvmPackages.bintools
     rustup
+    cargo
+    rustfmt
+    clippy
+    nixpkgs-fmt
   ];
 
   # Add environment variables
