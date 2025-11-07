@@ -1,6 +1,8 @@
 {
     "recommendations": [
         "tamasfe.even-better-toml",
-        "rust-lang.rust-analyzer"
+        "rust-lang.rust-analyzer",
+        "me-dutour-mathieu.vscode-github-actions",
+        "github.vscode-github-actions"
     ]
 }
