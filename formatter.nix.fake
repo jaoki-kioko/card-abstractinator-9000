@@ -1,0 +1,22 @@
+{
+  perSystem,
+  pkgs,
+}:
+let 
+  config = {
+    projectRootFile = "flake.nix";
+
+    programs = {
+      alejandra = {
+        enable = true;
+        package = pkgs.alejandra;
+      };
+      rustfmt = {
+        enable = true;
+        package = pkgs.rustfmt;
+        # If you ever want to configure the rust fmt edition consider doing it in a rustfmt.toml file instead of here.
+      };
+    };
+  }; in 
+  # TODO spend some time to understand if we need to also do a treefmtEval...check thing for nix flake checks
+(perSystem.treefmt-nix.lib.evalModule pkgs config).config.build.wrapper
