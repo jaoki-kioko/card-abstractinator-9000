@@ -16,6 +16,10 @@ in
       rustfmt
       clippy
       nixpkgs-fmt
+      # needed for bevy to render
+      wayland
+      libxkbcommon
+      xorg.libX11
     ];
 
     # Add environment variables
