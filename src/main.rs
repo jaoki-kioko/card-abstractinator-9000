@@ -13,9 +13,10 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    let boardwidth: f32 = 4.0;
     // circular base
     commands.spawn((
-        Mesh3d(meshes.add(Circle::new(4.0))),
+        Mesh3d(meshes.add(Circle::new(boardwidth))),
         MeshMaterial3d(materials.add(Color::srgb_u8(135, 135, 135))),
         Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
     ));
@@ -25,12 +26,12 @@ fn setup(
     let width: f32 = 1.0; //.05*2
     let height: f32 = 0.01;
     let length: f32 = 1.4; // .07*2
-    let cards: i32 = 10;
+    let cards: i32 = 2;
 
     for n in 1..=cards {
         let nf = n as f32;
         let cardsf = cards as f32;
-        let center: f32 = (0.0-((cardsf*(width/2.0))))/2.0+(nf*(width/2.0));
+        let center: f32 = (0.0-(((cardsf+1.0)*(width/2.0))))/2.0+(nf*(width/2.0));
         let stack: f32 = 0.0+(nf*height);
 
         commands.spawn((
@@ -53,7 +54,7 @@ fn setup(
     // camera
     commands.spawn((
         Camera3d::default(),
-        Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+        Transform::from_xyz(0.0, 2.0, 7.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 }
 
