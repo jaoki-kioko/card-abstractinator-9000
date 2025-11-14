@@ -23,16 +23,15 @@ fn setup(
 
     // hand
     // cards are 5:7
-    let width: f32 = 1.0; //.05*2
-    let height: f32 = 0.01;
-    let length: f32 = 1.4; // .07*2
-    let cards: i32 = 2;
+    let width = 1.0; //.05*2
+    let height = 0.01;
+    let length = 1.4; // .07*2
+    let cards = 2;
 
-    for n in 1..=cards {
-        let nf = n as f32;
+    for n in (1..=cards).map(|i| i as f32) {
         let cardsf = cards as f32;
-        let center: f32 = (0.0-(((cardsf+1.0)*(width/2.0))))/2.0+(nf*(width/2.0));
-        let stack: f32 = 0.0+(nf*height);
+        let center: f32 = (0.0 - ((cardsf + 1.0) * (width / 2.0))) / 2.0 + (n * (width / 2.0));
+        let stack: f32 = 0.0 + (n * height);
 
         commands.spawn((
             Mesh3d(meshes.add(Cuboid::new(width, height, length))),
@@ -40,7 +39,6 @@ fn setup(
             Transform::from_xyz(center, stack, 3.0),
         ));
     }
-
 
     // light
     commands.spawn((
@@ -57,4 +55,3 @@ fn setup(
         Transform::from_xyz(0.0, 2.0, 7.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 }
-
