@@ -2,8 +2,7 @@
   pname,
   pkgs,
   flake,
-}:
-let
+}: let
   formatter = pkgs.alejandra;
 in
-formatter
+  formatter

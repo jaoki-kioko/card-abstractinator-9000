@@ -1,53 +1,67 @@
-{ pkgs }:
-let
-  overrides = (builtins.fromTOML (builtins.readFile ./rust-toolchain.toml));
-  libPath =
-    with pkgs;
-    lib.makeLibraryPath [
-      # load external libraries that you need in your rust project here
+{
+  pkgs,
+  perSystem,
+}:
+perSystem.devshell.mkShell (
+  let
+    rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+
+    dependenciesFromBevyDocs =
+      # I based these off the flake in this example from the bevy docs. But the Bevy nix docs are a little outdated. And don't seem to be maintained often.
+      # TODO: A good person would update the flake in the bevy docs to be more like this one.
+      # https://github.com/bevyengine/bevy/blob/c7f607a509e2cd879ba65207ebf7e84ab4ff7543/docs/linux_dependencies.md#flakenix
+      with pkgs; rec {
+        linuxLibraries = [
+          # I added this one manually. It includes `lib/pkgconfig/wayland-client.pc` which is required for bevy to generate a wayland compatible output.
+          kdePackages.wayland.dev
+
+          # Cross Platform 3D Graphics API
+          vulkan-loader
+
+          # Audio
+          alsa-lib.dev
+
+          xorg.libX11
+          xorg.libXi
+          xorg.libXcursor
+          libxkbcommon
+        ];
+        packages =
+          [
+            # Rust dependencies
+            rustToolchain
+            pkg-config
+          ]
+          ++ lib.optionals stdenv.hostPlatform.isLinux (
+            [
+              # Audio (Linux only)
+              alsa-lib
+
+              # For debugging around vulkan
+              vulkan-tools
+              # Other dependencies
+              libudev-zero
+              xorg.libXrandr
+            ]
+            ++ linuxLibraries
+          );
+      };
+  in {
+    packages = dependenciesFromBevyDocs.packages;
+    # Add environment variables
+    env = [
+      {
+        name = "LD_LIBRARY_PATH";
+        value = pkgs.lib.makeLibraryPath dependenciesFromBevyDocs.linuxLibraries;
+      }
+      {
+        name = "PKG_CONFIG_PATH";
+        prefix = "$DEVSHELL_DIR/lib/pkgconfig";
+      }
+      {
+        name = "RUST_SRC_PATH";
+        value = "${rustToolchain}/lib/rustlib/src/rust/library";
+      }
     ];
-in
-pkgs.mkShell {
-  # Add build dependencies
-  packages = with pkgs; [
-    clang
-    # Replace llvmPackages with llvmPackages_X, where X is the latest LLVM version (at the time of writing, 16)
-    llvmPackages.bintools
-    rustup
-  ];
-
-  # Add environment variables
-  env = {
-    # RUSTC_VERSION = overrides.toolchain.channel;
-
-    # # https://github.com/rust-lang/rust-bindgen#environment-variables
-    # LIBCLANG_PATH = pkgs.lib.makeLibraryPath [ pkgs.llvmPackages_latest.libclang.lib ];
-
-    # # Add precompiled library to rustc search path
-    # RUSTFLAGS = (builtins.map (a: ''-L ${a}/lib'') [
-    #   # add libraries here (e.g. pkgs.libvmi)
-    # ]);
-
-    # LD_LIBRARY_PATH = libPath;
-
-    # # Add glibc, clang, glib, and other headers to bindgen search path
-    # BINDGEN_EXTRA_CLANG_ARGS =
-    # # Includes normal include path
-    # (builtins.map (a: ''-I"${a}/include"'') [
-    #   # add dev libraries here (e.g. pkgs.libvmi.dev)
-    #   pkgs.glibc.dev
-    # ])
-    # # Includes with special directory paths
-    # ++ [
-    #   ''-I"${pkgs.llvmPackages_latest.libclang.lib}/lib/clang/${pkgs.llvmPackages_latest.libclang.version}/include"''
-    #   ''-I"${pkgs.glib.dev}/include/glib-2.0"''
-    #   ''-I${pkgs.glib.out}/lib/glib-2.0/include/''
-    # ];
-  };
-
-  # Load custom bash code
-  shellHook = ''
-    export PATH=$PATH:''${CARGO_HOME:-~/.cargo}/bin
-    export PATH=$PATH:''${RUSTUP_HOME:-~/.rustup}/toolchains/$RUSTC_VERSION-x86_64-unknown-linux-gnu/bin/
-  '';
-}
+  }
+)
