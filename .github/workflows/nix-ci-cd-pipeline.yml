@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  nix-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v13
+      - name: Setup Nix x Github Actions caching tool
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Run the nix flake check
+        run: nix flake check
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Setup Nix x Github Actions caching tool
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Run format checks
+        # treefmt docs: --ci Runs treefmt in a CI mode, enabling --no-cache, --fail-on-change and adjusting some other settings best suited to a CI use case.
+        run: nix fmt -- --ci
+  rust-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v13
+      - name: Setup Nix x Github Actions caching tool
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      # TODO: issue#11 Consider replacing these `nix develop` commands with `nix build` and `nix check`
+      - run: nix develop --command cargo build --verbose
+      - run: nix develop --command cargo test --verbose
+      - run: nix develop --command cargo clippy -- --deny warnings # Clippy docs recommend `-Dwarnings` see https://doc.rust-lang.org/stable/clippy/continuous_integration/index.html
