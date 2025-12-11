@@ -4,7 +4,7 @@
 }:
 perSystem.devshell.mkShell (
   let
-    rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+    rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ../rust-toolchain.toml;
 
     dependenciesFromBevyDocs =
       # I based these off the flake in this example from the bevy docs. But the Bevy nix docs are a little outdated. And don't seem to be maintained often.

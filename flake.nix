@@ -22,6 +22,7 @@
   outputs = inputs @ {rust-overlay, ...}:
     inputs.blueprint {
       inherit inputs;
+      prefix = "nix/";
       nixpkgs.overlays = [
         rust-overlay.overlays.default
       ];
