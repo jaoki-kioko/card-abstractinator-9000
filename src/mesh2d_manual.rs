@@ -8,11 +8,12 @@
 use bevy::{
     asset::RenderAssetUsages,
     color::palettes::basic::YELLOW,
-    core_pipeline::core_2d::{Transparent2d, CORE_2D_DEPTH_FORMAT},
-    math::{ops, FloatOrd},
+    core_pipeline::core_2d::{CORE_2D_DEPTH_FORMAT, Transparent2d},
+    math::{FloatOrd, ops},
     mesh::{Indices, MeshVertexAttribute, VertexBufferLayout},
     prelude::*,
     render::{
+        Extract, Render, RenderApp, RenderStartup, RenderSystems,
         mesh::RenderMesh,
         render_asset::RenderAssets,
         render_phase::{
@@ -29,12 +30,11 @@ use bevy::{
         sync_component::SyncComponentPlugin,
         sync_world::{MainEntityHashMap, RenderEntity},
         view::{ExtractedView, RenderVisibleEntities, ViewTarget},
-        Extract, Render, RenderApp, RenderStartup, RenderSystems,
     },
     sprite_render::{
-        extract_mesh2d, init_mesh_2d_pipeline, DrawMesh2d, Material2dBindGroupId, Mesh2dPipeline,
-        Mesh2dPipelineKey, Mesh2dTransforms, MeshFlags, RenderMesh2dInstance, SetMesh2dBindGroup,
-        SetMesh2dViewBindGroup,
+        DrawMesh2d, Material2dBindGroupId, Mesh2dPipeline, Mesh2dPipelineKey, Mesh2dTransforms,
+        MeshFlags, RenderMesh2dInstance, SetMesh2dBindGroup, SetMesh2dViewBindGroup,
+        extract_mesh2d, init_mesh_2d_pipeline,
     },
 };
 use std::f32::consts::PI;
