@@ -23,6 +23,11 @@
     inputs.blueprint {
       inherit inputs;
       prefix = "nix/";
+      ### the systems field controls which system architectures this flake will try to support
+      systems = [
+        "x86_64-linux"
+        # TODO: Consider adding "aarch64-darwin" for Arm-chip MacOS support
+      ];
       nixpkgs.overlays = [
         rust-overlay.overlays.default
       ];
